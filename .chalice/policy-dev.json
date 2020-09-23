@@ -12,7 +12,8 @@
       ],
       "Resource": [
         "arn:*:logs:*:*:*",
-        "arn:aws:s3:::sinfiltrar-input/*"
+        "arn:aws:s3:::sinfiltrar-input/*",
+        "arn:aws:s3:::sinfiltrar-attachments/*"
       ]
     }
   ]

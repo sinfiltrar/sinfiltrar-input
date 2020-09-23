@@ -11,6 +11,8 @@ url = 'https://search-sinfiltrar-input-y25ksi7pnwfkx6weatr6pfde24.us-west-2.es.a
 
 s3 = boto3.resource('s3', )
 
+s3client = boto3.client('s3')
+
 @app.route('/', methods=['POST'])
 def index():
     request = app.current_request
@@ -29,6 +31,8 @@ def process_event(event):
 
     object = s3.Object(snsData['receipt']['action']['bucketName'], snsData['receipt']['action']['objectKey'])
 
+
+    app.log.debug('Downloading from %s/%s', snsData['receipt']['action']['bucketName'], snsData['receipt']['action']['objectKey'])
     mailBody = object.get()['Body'].read().decode('utf-8')
     app.log.debug('Got body from %s/%s', snsData['receipt']['action']['bucketName'], snsData['receipt']['action']['objectKey'])
 
@@ -38,16 +42,31 @@ def process_event(event):
 
 #     app.log.debug('parsedBody %s', parsedBody.__dict__)
 
+    parsedData['attachments'] = []
+
+#     parsedData['body_plain'] = emailObject.get_body(('plain', ))
+#     parsedData['body'] = emailObject.get_body(('related', 'html', 'plain'))
+
     if emailObject.is_multipart():
-      for part in emailObject.get_payload():
-        app.log.debug('BODY %s', part.get_content_type())
-        app.log(part)
-    else:
-      app.log.debug(emailObject.get_payload())
+        for i, att in enumerate(emailObject.walk()):
+            if not att.is_attachment(): continue
 
-#     parsedData['body'] = mailBody
+            type = att.get_content_type()
+            payload = att.get_payload(decode=True)
+            # Ensure unique objectKeys for attachments
+            filename = '{}-{}-{}'.format(snsData['receipt']['action']['objectKey'], i, att.get_filename())
 
-    r = requests.post(url, json = parsedData, headers = { 'Content-Type': 'application/json' })
-    app.log.debug(r.status_code)
-    app.log.debug(r.json())
+            app.log.debug(filename)
+
+            response = s3client.upload_file(payload, 'sinfiltrar-attachments', filename)
+            parsedData['attachments'].append({
+              'type': type,
+              'filename': att.get_filename(),
+              'url': response.url
+            })
+
+    app.log.debug('parsedData %s', parsedData)
+
+#     r = requests.post(url, json = parsedData, headers = { 'Content-Type': 'application/json' })
+
 
