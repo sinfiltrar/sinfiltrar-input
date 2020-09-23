@@ -67,16 +67,30 @@ def process_event(event):
 
                 location = s3client.get_bucket_location(Bucket=bucket_name)['LocationConstraint']
                 url = "https://s3-%s.amazonaws.com/%s/%s" % (location, bucket_name, filename)
+                cid = att['Content-ID'].strip('<>')
 
                 parsedData['attachments'].append({
-                  'type': content_type,
-                  'filename': att.get_filename(),
-                  'url': url
+                    'type': content_type,
+                    'filename': att.get_filename(),
+                    'url': url,
+                    'cid': cid,
                 })
 
     # TODO: change img src for related MIME parts
 
     if not 'body_plain' in parsedData and 'body' in parsedData:
         parsedData['body_plain'] = parsedData['body']  # TODO: strip html
+
+    # body from bytes to string
+    parsedData['body'] = '{}'.format(parsedData['body'])
+
+    # update src of embedded images
+    if 'body' in parsedData:
+        for att in parsedData['attachments']:
+            if att['cid']:
+                app.log.debug('body %s', parsedData['body'])
+                app.log.debug('cid %s', 'cid:{}'.format(att['cid']))
+                app.log.debug('url %s', att['url'])
+                parsedData['body'] = parsedData['body'].replace('cid:{}'.format(att['cid']), att['url'])
 
     app.log.debug('parsedData %s', parsedData)
