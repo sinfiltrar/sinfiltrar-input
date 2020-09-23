@@ -76,10 +76,13 @@ def process_event(event):
                     'cid': cid,
                 })
 
-    # TODO: change img src for related MIME parts
-
+    # if we only got html
     if not 'body_plain' in parsedData and 'body' in parsedData:
         parsedData['body_plain'] = parsedData['body']  # TODO: strip html
+
+    # if we only got plain text
+    if not 'body' in parsedData and 'body_plain' in parsedData:
+        parsedData['body'] = parsedData['body_plain']
 
     # body from bytes to string
     parsedData['body'] = '{}'.format(parsedData['body'])
