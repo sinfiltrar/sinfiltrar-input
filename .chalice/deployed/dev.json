@@ -1,10 +1,10 @@
 {
   "resources": [
     {
-      "name": "handle_sns_message_role",
+      "name": "default-role",
       "resource_type": "iam_role",
-      "role_arn": "arn:aws:iam::153920312805:role/sinfiltrar-input-dev-handle_sns_message",
-      "role_name": "sinfiltrar-input-dev-handle_sns_message"
+      "role_arn": "arn:aws:iam::153920312805:role/sinfiltrar-input-dev",
+      "role_name": "sinfiltrar-input-dev"
     },
     {
       "name": "handle_sns_message",
