@@ -18,6 +18,23 @@
       "lambda_arn": "arn:aws:lambda:us-west-2:153920312805:function:sinfiltrar-input-dev-handle_sns_message",
       "subscription_arn": "arn:aws:sns:us-west-2:153920312805:sinfiltrar-input:8de9011e-96c9-4310-8dd9-33312659cfa8",
       "topic_arn": "arn:aws:sns:us-west-2:153920312805:sinfiltrar-input"
+    },
+    {
+      "name": "api_handler_role",
+      "resource_type": "iam_role",
+      "role_arn": "arn:aws:iam::153920312805:role/sinfiltrar-input-dev-api_handler",
+      "role_name": "sinfiltrar-input-dev-api_handler"
+    },
+    {
+      "name": "api_handler",
+      "resource_type": "lambda_function",
+      "lambda_arn": "arn:aws:lambda:us-west-2:153920312805:function:sinfiltrar-input-dev"
+    },
+    {
+      "name": "rest_api",
+      "resource_type": "rest_api",
+      "rest_api_id": "jbxbeshm75",
+      "rest_api_url": "https://jbxbeshm75.execute-api.us-west-2.amazonaws.com/api/"
     }
   ],
   "schema_version": "2.0",

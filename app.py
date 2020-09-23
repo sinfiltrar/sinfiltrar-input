@@ -25,7 +25,6 @@ def process_event(event):
 
     snsData = json.loads(event.message)
     app.log.debug("Received message with subject: %s, message: %s", event.subject, event.message)
-
     app.log.debug('SNS DATA %s', snsData['mail']['commonHeaders'])
 
     object = s3.Object(snsData['receipt']['action']['bucketName'], snsData['receipt']['action']['objectKey'])
@@ -35,12 +34,20 @@ def process_event(event):
 
     parsedData = snsData['mail']['commonHeaders']
 
-    parsedBody = email.message_from_string(mailBody)
+    emailObject = email.message_from_string(mailBody)
 
-    app.log.debug('parsedBody %s', parsedBody.__dict__)
+#     app.log.debug('parsedBody %s', parsedBody.__dict__)
+
+    if emailObject.is_multipart():
+      for part in emailObject.get_payload():
+        app.log.debug('BODY %s', part.get_content_type())
+        app.log(part)
+    else:
+      app.log.debug(emailObject.get_payload())
 
 #     parsedData['body'] = mailBody
 
     r = requests.post(url, json = parsedData, headers = { 'Content-Type': 'application/json' })
     app.log.debug(r.status_code)
     app.log.debug(r.json())
+

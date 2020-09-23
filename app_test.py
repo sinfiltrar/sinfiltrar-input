@@ -1,9 +1,14 @@
 from chalice.test import Client
+from app import app
+
+
+with open('example_sns_message.json', 'r') as file:
+    message = file.read()
 
 def test_sns_handler():
     with Client(app) as client:
         response = client.lambda_.invoke(
-            "foo",
-            client.events.generate_sns_event(message="hello world")
+            "handle_sns_message",
+            client.events.generate_sns_event(message=message)
         )
         assert response.payload == {'message': 'hello world'}

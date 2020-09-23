@@ -1,0 +1,151 @@
+{
+  "notificationType": "Received",
+  "mail": {
+    "timestamp": "2020-09-23T17:30:21.907Z",
+    "source": "mauros@gmail.com",
+    "messageId": "g6h60f16jpnrj81hlp5lrgj6biuvbhg978mbv081",
+    "destination": [
+      "input@sinfiltrar.com.ar"
+    ],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "Return-Path",
+        "value": "<mauros@gmail.com>"
+      },
+      {
+        "name": "Received",
+        "value": "from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176]) by inbound-smtp.us-west-2.amazonaws.com with SMTP id g6h60f16jpnrj81hlp5lrgj6biuvbhg978mbv081 for input@sinfiltrar.com.ar; Wed, 23 Sep 2020 17:30:21 +0000 (UTC)"
+      },
+      {
+        "name": "X-SES-Spam-Verdict",
+        "value": "PASS"
+      },
+      {
+        "name": "X-SES-Virus-Verdict",
+        "value": "PASS"
+      },
+      {
+        "name": "Received-SPF",
+        "value": "pass (spfCheck: domain of _spf.google.com designates 209.85.160.176 as permitted sender) client-ip=209.85.160.176; envelope-from=mauros@gmail.com; helo=mail-qt1-f176.google.com;"
+      },
+      {
+        "name": "Authentication-Results",
+        "value": "amazonses.com; spf=pass (spfCheck: domain of _spf.google.com designates 209.85.160.176 as permitted sender) client-ip=209.85.160.176; envelope-from=mauros@gmail.com; helo=mail-qt1-f176.google.com; dkim=pass header.i=@gmail.com; dmarc=pass header.from=gmail.com;"
+      },
+      {
+        "name": "X-SES-RECEIPT",
+        "value": "AEFBQUFBQUFBQUFGTmRHLzgzMFN0QU5NcktEbVBCU1FQcVlPUmpyRkt0S1JJTnAyQkM5MDhSeTNaRXV4M2NQRFcyZ2Z4WklCWElsanJXVjBTaDlIa28yMURYUWJpOGw4RGwyWWIxazlodEx6SkZUN0NnMEVXTElydmFVNktkbDg5VTFMRnozYVN4elhwNmV0VXlZQnJOaFkxbVpZY2U3RDV4cjcrTTlaQTNBRmI1MUIvalBhVzQ4UkJmMThxeEdXemdQK1dHQzl5S3JibXEvbVRoL1lsemFZdDdOMm1vVE0vUU1CampYNHVqMWtPU2ZHaVlmL1I3emEwQ0Q3OGErMmFEWGhuUGtPMkdTZkVRZE1ZWlkzdk0xVE1DWnRzbW4zWlJxRjVIbVZRVXk3dSt4c3pFL0NuUFE9PQ=="
+      },
+      {
+        "name": "X-SES-DKIM-SIGNATURE",
+        "value": "a=rsa-sha256; q=dns/txt; b=IpWGUFcMZFaDlpbGnMjo7erG1cNa/iOvqtVY8W4q5hIXQ+WVOMxTsHmFLUUD6riNt/HFZUOSLZklzqZ9YM7HJP+XPJAzQAGZIY8TeWPsch682riE3JSXTo+1NWr6PUNH9OIpSPBDwLmCJGqGspohE9iU0bbD+YVyyb3vA0jDwoQ=; c=relaxed/simple; s=hsbnp7p3ensaochzwyq5wwmceodymuwv; d=amazonses.com; t=1600882231; v=1; bh=ZrIDWlfeWqJSvCgxXeJqCHdrIVhKhRXA+z+EH+xVAIo=; h=From:To:Cc:Bcc:Subject:Date:Message-ID:MIME-Version:Content-Type:X-SES-RECEIPT;"
+      },
+      {
+        "name": "Received",
+        "value": "by mail-qt1-f176.google.com with SMTP id p65so588895qtd.2 for <input@sinfiltrar.com.ar>; Wed, 23 Sep 2020 10:30:21 -0700 (PDT)"
+      },
+      {
+        "name": "DKIM-Signature",
+        "value": "v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025; h=from:mime-version:subject:message-id:date:to; bh=W8J74mapeOParJPDvvCLpfz32Zj/+eHCH7Zwx+stzkk=; b=l8basyg88d7l7Qw/HOfV5F8XREhYCrvHPyzNmIn2d1Sm/yHT1MT86X0QZ0zRUQ4nJgp8XLvi0I/Nwoei78RHfZZxRRfcao4oRwbY2p0iFcPGAh73JxXWAdQbQV2qS9DEQEx4Jmmp8L71cvIerZpYwCXigZuPoUfUD0BabwIyY8txcK9nnIa4fQE5q8T3CfwSCbqBRvXrkIHpOYnicmlsEGxNxhujhSO5IMuytpFDW/OS/wpGxvzdhXJ7PVKo7Smm0txaig9PShjtRDdcuZgzq1UmIX2UQUzZQbjJLRriKAElB8t1zEU1shgWCgs1BTcRSh6RdzuMWh1ap6Qm+fivFA=="
+      },
+      {
+        "name": "X-Google-DKIM-Signature",
+        "value": "v=1; a=rsa-sha256; c=relaxed/relaxed; d=1e100.net; s=20161025; h=x-gm-message-state:from:mime-version:subject:message-id:date:to; bh=W8J74mapeOParJPDvvCLpfz32Zj/+eHCH7Zwx+stzkk=; b=KcQNxaBj1Nb++qGJpt1dZf5i5j6kJAYG8+Y5cq1enHsClGlCtwME3GdP+IbcBJ+kar y8UuW1bf3jPZ9+pFyGUW9aeYY4XRBgfRf1nFQp+5s+AI8A81adJkXrILfAdHsBCZSEBw MMxEtIj1kMNUIoN5FHt7e/0nBQxsWrGQIslQco7G650l0xJcBA+uCEXLXtq6mzgtj2g2 m5Sub8FQh8PwS6dwkg0aQL7CkijfEXKt2Egvoh1rh0uuxUYRxzbCR+MLV4OaPV8nLycL FbU8unlTELiS46XqyfLjSLTVO21XtYWyWGKhtmYWRGpgn0/G0k7l5cOe5QUv8Ol9ahhh Og0Q=="
+      },
+      {
+        "name": "X-Gm-Message-State",
+        "value": "AOAM5329TUsPk4L/HpLlzaVRIhm7vTuI1s1CI2+uvLeeUQO6GTLTKeTD ufYU3NsWROugd/LxEooX/OCw025riWre/w=="
+      },
+      {
+        "name": "X-Google-Smtp-Source",
+        "value": "ABdhPJyZcC9pR9ngnwcLNNvt1xLno3FcY8yawqD+po28LcNu6+JQChLIFooZ/To7WC30smMvePZXag=="
+      },
+      {
+        "name": "X-Received",
+        "value": "by 2002:aed:230a:: with SMTP id h10mr1209059qtc.368.1600882220025; Wed, 23 Sep 2020 10:30:20 -0700 (PDT)"
+      },
+      {
+        "name": "Return-Path",
+        "value": "<mauros@gmail.com>"
+      },
+      {
+        "name": "Received",
+        "value": "from [192.168.0.135] ([181.164.101.127]) by smtp.gmail.com with ESMTPSA id 203sm416340qke.59.2020.09.23.10.29.54 for <input@sinfiltrar.com.ar> (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128); Wed, 23 Sep 2020 10:30:15 -0700 (PDT)"
+      },
+      {
+        "name": "From",
+        "value": "Mauro Spivak <mauros@gmail.com>"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/alternative; boundary=\"Apple-Mail=_DE1A9A74-717C-4111-87BC-E33AF2A40B4E\""
+      },
+      {
+        "name": "Mime-Version",
+        "value": "1.0 (Mac OS X Mail 12.4 \\(3445.104.14\\))"
+      },
+      {
+        "name": "Subject",
+        "value": "Prueba con data"
+      },
+      {
+        "name": "Message-Id",
+        "value": "<6687AFCD-E88F-4CC5-818C-032B9EE71BC8@gmail.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Wed, 23 Sep 2020 14:29:52 -0300"
+      },
+      {
+        "name": "To",
+        "value": "input@sinfiltrar.com.ar"
+      },
+      {
+        "name": "X-Mailer",
+        "value": "Apple Mail (2.3445.104.14)"
+      }
+    ],
+    "commonHeaders": {
+      "returnPath": "mauros@gmail.com",
+      "from": [
+        "Mauro Spivak <mauros@gmail.com>"
+      ],
+      "date": "Wed, 23 Sep 2020 14:29:52 -0300",
+      "to": [
+        "input@sinfiltrar.com.ar"
+      ],
+      "messageId": "<6687AFCD-E88F-4CC5-818C-032B9EE71BC8@gmail.com>",
+      "subject": "Prueba con data"
+    }
+  },
+  "receipt": {
+    "timestamp": "2020-09-23T17:30:21.907Z",
+    "processingTimeMillis": 10014,
+    "recipients": [
+      "input@sinfiltrar.com.ar"
+    ],
+    "spamVerdict": {
+      "status": "PASS"
+    },
+    "virusVerdict": {
+      "status": "PASS"
+    },
+    "spfVerdict": {
+      "status": "PASS"
+    },
+    "dkimVerdict": {
+      "status": "PASS"
+    },
+    "dmarcVerdict": {
+      "status": "PASS"
+    },
+    "action": {
+      "type": "S3",
+      "topicArn": "arn:aws:sns:us-west-2:153920312805:sinfiltrar-input",
+      "bucketName": "sinfiltrar-input",
+      "objectKeyPrefix": "",
+      "objectKey": "g6h60f16jpnrj81hlp5lrgj6biuvbhg978mbv081"
+    }
+  }
+}
