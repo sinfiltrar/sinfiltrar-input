@@ -7,8 +7,7 @@ import email
 app = Chalice(app_name='sinfiltrar-input')
 app.debug = True
 
-url = 'https://search-sinfiltrar-input-y25ksi7pnwfkx6weatr6pfde24.us-west-2.es.amazonaws.com/main/_doc'
-
+bucket_name = 'sinfiltrar-attachments'
 s3 = boto3.resource('s3', )
 
 s3client = boto3.client('s3')
@@ -44,29 +43,40 @@ def process_event(event):
 
     parsedData['attachments'] = []
 
-#     parsedData['body_plain'] = emailObject.get_body(('plain', ))
-#     parsedData['body'] = emailObject.get_body(('related', 'html', 'plain'))
-
     if emailObject.is_multipart():
         for i, att in enumerate(emailObject.walk()):
-            if not att.is_attachment(): continue
 
-            type = att.get_content_type()
+            content_type = att.get_content_type()
             payload = att.get_payload(decode=True)
-            # Ensure unique objectKeys for attachments
-            filename = '{}-{}-{}'.format(snsData['receipt']['action']['objectKey'], i, att.get_filename())
 
-            app.log.debug(filename)
+            if content_type == 'text/plain' and 'body_plain' not in parsedData:
+                parsedData['body_plain'] = payload
+            elif content_type == 'text/html' and 'body' not in parsedData:
+                parsedData['body'] = payload
+            elif payload != None:
+                # Ensure unique objectKeys for attachments
+                filename = '{}-{}-{}'.format(snsData['receipt']['action']['objectKey'], i, att.get_filename())
 
-            response = s3client.upload_file(payload, 'sinfiltrar-attachments', filename)
-            parsedData['attachments'].append({
-              'type': type,
-              'filename': att.get_filename(),
-              'url': response.url
-            })
+                response = s3client.put_object(
+                        ACL='public-read',
+                        Body=payload,
+                        Bucket=bucket_name,
+                        ContentType=content_type,
+                        Key=filename,
+                        )
+
+                location = s3client.get_bucket_location(Bucket=bucket_name)['LocationConstraint']
+                url = "https://s3-%s.amazonaws.com/%s/%s" % (location, bucket_name, filename)
+
+                parsedData['attachments'].append({
+                  'type': content_type,
+                  'filename': att.get_filename(),
+                  'url': url
+                })
+
+    # TODO: change img src for related MIME parts
+
+    if not 'body_plain' in parsedData and 'body' in parsedData:
+        parsedData['body_plain'] = parsedData['body']  # TODO: strip html
 
     app.log.debug('parsedData %s', parsedData)
-
-#     r = requests.post(url, json = parsedData, headers = { 'Content-Type': 'application/json' })
-
-
