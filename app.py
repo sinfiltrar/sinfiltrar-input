@@ -5,12 +5,14 @@ import boto3
 import email
 import logging
 import psycopg2
+import psycopg2.extras
 import os
 import datetime
+from slugify import slugify
 
 app = Chalice(app_name='sinfiltrar-input')
 app.log.setLevel(logging.INFO)
-# app.debug = True
+app.debug = True
 
 # S3 init
 bucket_name = 'sinfiltrar-attachments'
@@ -28,6 +30,36 @@ DB_PASS="0WbkfeDvCP"
 dbSession = boto3.Session()
 rdsClient = boto3.client('rds')
 token = rdsClient.generate_db_auth_token(DBHostname=DB_ENDPOINT, Port=DB_PORT, DBUsername=DB_USER, Region=DB_REGION)
+
+@app.route('/latest')
+def latest():
+    connection = db_conn()
+    cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    fetch_all_as_dict = lambda cursor: [dict(row) for row in cursor]
+
+
+    query = "SELECT * FROM docs ORDER BY received_at DESC LIMIT 20"
+    cursor.execute(query)
+    result = fetch_all_as_dict(cursor)
+    cursor.close()
+    connection.close()
+
+#     def myconverter(o):
+#       if isinstance(o, datetime.datetime):
+#           return o.__str__()
+
+
+    response = [{
+      "title": doc['subject'],
+      "slug": doc['slug'],
+      "short_text": doc['short_text'],
+      "content": doc['body_plain'],
+      "date": doc['received_at'].__str__(),
+      "media": doc['attachments'],
+    } for doc in result]
+
+    return response
 
 
 @app.on_sns_message(topic='sinfiltrar-input')
@@ -112,15 +144,19 @@ def process_event(event):
 
     connection = db_conn()
     cursor = connection.cursor()
-    query = "INSERT INTO docs (id, date, from_email, subject, body, body_plain, attachments) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    query = "INSERT INTO docs (id, from_email, slug, subject, short_text, body, body_plain, attachments, meta, received_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     result = cursor.execute(query, (
         snsData['receipt']['action']['objectKey'],
-        datetime.datetime.strptime(parsedData['date'], "%a, %d %b %Y %H:%M:%S %z").strftime('%Y-%m-%d %H:%M:%S'),
         parsedData['from'],
+        slugify(parsedData['subject']),
         parsedData['subject'],
+        parsedData['body_plain'][:255],
         parsedData['body'],
         parsedData['body_plain'],
-        json.dumps(parsedData['attachments'])
+        json.dumps(parsedData['attachments']),
+        json.dumps({}),
+        datetime.datetime.strptime(parsedData['date'], "%a, %d %b %Y %H:%M:%S %z").strftime('%Y-%m-%d %H:%M:%S'),
+
     ))
     connection.commit()
     cursor.close()
