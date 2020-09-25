@@ -1,2 +1,7 @@
 # sinfiltrar-input
-Proyecto en Chalice para Lambda. Agrega SES a ElasticSearch
+Chalice project for AWS Lambda. Pushes SES input to PostrgreSQL.
+
+## Getting Started
+```$xslt
+source venv/bin/activate 
+```
