@@ -128,7 +128,7 @@ def process_event(event):
 
 def db_conn():
     try:
-        conn = psycopg2.connect(host=DB_ENDPOINT, port=DB_PORT, database=DB_NAME, user=DB_USER, password=DB_PASS)
+        conn = psycopg2.connect(host=DB_ENDPOINT, port=DB_PORT, database=DB_NAME, user=DB_USER, password=token)
         return conn
     except Exception as e:
         app.log.warning("Database connection failed due to {}".format(e))
