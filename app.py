@@ -3,20 +3,32 @@ import requests
 import json
 import boto3
 import email
+import logging
+import psycopg2
+import os
+import datetime
 
 app = Chalice(app_name='sinfiltrar-input')
-app.debug = True
+app.log.setLevel(logging.INFO)
+# app.debug = True
 
+# S3 init
 bucket_name = 'sinfiltrar-attachments'
 s3 = boto3.resource('s3', )
-
 s3client = boto3.client('s3')
 
-@app.route('/', methods=['POST'])
-def index():
-    request = app.current_request
+# RDS init
+DB_ENDPOINT="sinfiltrar.c2yrjc7heqtk.us-west-2.rds.amazonaws.com"
+DB_PORT="5432"
+DB_USER="postgres"
+DB_REGION="us-west-2"
+DB_NAME="sinfiltrar"
+DB_PASS="0WbkfeDvCP"
 
-    process_event(event)
+dbSession = boto3.Session()
+rdsClient = boto3.client('rds')
+token = rdsClient.generate_db_auth_token(DBHostname=DB_ENDPOINT, Port=DB_PORT, DBUsername=DB_USER, Region=DB_REGION)
+
 
 @app.on_sns_message(topic='sinfiltrar-input')
 def handle_sns_message(event):
@@ -25,7 +37,7 @@ def handle_sns_message(event):
 def process_event(event):
 
     snsData = json.loads(event.message)
-    app.log.debug("Received message with subject: %s, message: %s", event.subject, event.message)
+#     app.log.debug("Received message with subject: %s, message: %s", event.subject, event.message)
     app.log.debug('SNS DATA %s', snsData['mail']['commonHeaders'])
 
     object = s3.Object(snsData['receipt']['action']['bucketName'], snsData['receipt']['action']['objectKey'])
@@ -97,3 +109,27 @@ def process_event(event):
                 parsedData['body'] = parsedData['body'].replace('cid:{}'.format(att['cid']), att['url'])
 
     app.log.debug('parsedData %s', parsedData)
+
+    connection = db_conn()
+    cursor = connection.cursor()
+    query = "INSERT INTO docs (id, date, from_email, subject, body, body_plain, attachments) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    result = cursor.execute(query, (
+        snsData['receipt']['action']['objectKey'],
+        datetime.datetime.strptime(parsedData['date'], "%a, %d %b %Y %H:%M:%S %z").strftime('%Y-%m-%d %H:%M:%S'),
+        parsedData['from'],
+        parsedData['subject'],
+        parsedData['body'],
+        parsedData['body_plain'],
+        json.dumps(parsedData['attachments'])
+    ))
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+def db_conn():
+    try:
+        conn = psycopg2.connect(host=DB_ENDPOINT, port=DB_PORT, database=DB_NAME, user=DB_USER, password=DB_PASS)
+        return conn
+    except Exception as e:
+        app.log.warning("Database connection failed due to {}".format(e))
+        exit()

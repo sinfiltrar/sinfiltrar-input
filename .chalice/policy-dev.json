@@ -15,6 +15,15 @@
         "arn:aws:s3:::sinfiltrar-input/*",
         "arn:aws:s3:::sinfiltrar-attachments/*"
       ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "rds-db:connect"
+      ],
+      "Resource": [
+        "arn:aws:rds-db:us-west-2:153920312805:dbuser:sinfiltrar/postgres"
+      ]
     }
   ]
 }
