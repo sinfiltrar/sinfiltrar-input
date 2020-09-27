@@ -39,7 +39,7 @@ def latest():
     fetch_all_as_dict = lambda cursor: [dict(row) for row in cursor]
 
 
-    query = "SELECT * FROM docs ORDER BY received_at DESC LIMIT 20"
+    query = "SELECT * FROM docs ORDER BY issued_at DESC LIMIT 20"
     cursor.execute(query)
     result = fetch_all_as_dict(cursor)
     cursor.close()
@@ -51,12 +51,12 @@ def latest():
 
 
     response = [{
-      "title": doc['subject'],
+      "title": doc['title'],
       "slug": doc['slug'],
       "short_text": doc['short_text'],
       "content": doc['body_plain'],
-      "date": doc['received_at'].__str__(),
-      "media": doc['attachments'],
+      "date": doc['issued_at'].__str__(),
+      "media": doc['media'],
     } for doc in result]
 
     return response
@@ -94,9 +94,9 @@ def process_event(event):
             payload = att.get_payload(decode=True)
 
             if content_type == 'text/plain' and 'body_plain' not in parsedData:
-                parsedData['body_plain'] = payload
+                parsedData['body_plain'] = payload.decode('utf-8')
             elif content_type == 'text/html' and 'body' not in parsedData:
-                parsedData['body'] = payload
+                parsedData['body'] = payload.decode('utf-8')
             elif payload != None:
                 # Ensure unique objectKeys for attachments
                 filename = '{}-{}-{}'.format(snsData['receipt']['action']['objectKey'], i, att.get_filename())
@@ -128,23 +128,33 @@ def process_event(event):
     if not 'body' in parsedData and 'body_plain' in parsedData:
         parsedData['body'] = parsedData['body_plain']
 
-    # body from bytes to string
-    parsedData['body'] = '{}'.format(parsedData['body'])
-
     # update src of embedded images
     if 'body' in parsedData:
         for att in parsedData['attachments']:
             if att['cid']:
-                app.log.debug('body %s', parsedData['body'])
-                app.log.debug('cid %s', 'cid:{}'.format(att['cid']))
-                app.log.debug('url %s', att['url'])
                 parsedData['body'] = parsedData['body'].replace('cid:{}'.format(att['cid']), att['url'])
 
     app.log.debug('parsedData %s', parsedData)
 
     connection = db_conn()
     cursor = connection.cursor()
-    query = "INSERT INTO docs (id, from_email, slug, subject, short_text, body, body_plain, attachments, meta, received_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    query = """
+        INSERT INTO docs
+            (id, from_email, slug, title, short_text, body_html, body_plain, media, meta, issued_at)
+        VALUES
+            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (id)
+        DO UPDATE SET
+            from_email=EXCLUDED.from_email,
+            slug=EXCLUDED.slug,
+            title=EXCLUDED.title,
+            short_text=EXCLUDED.short_text,
+            body_html=EXCLUDED.body_html,
+            body_plain=EXCLUDED.body_plain,
+            media=EXCLUDED.media,
+            meta=EXCLUDED.meta,
+            issued_at=EXCLUDED.issued_at
+        """
     result = cursor.execute(query, (
         snsData['receipt']['action']['objectKey'],
         parsedData['from'],
@@ -153,7 +163,7 @@ def process_event(event):
         parsedData['body_plain'][:255],
         parsedData['body'],
         parsedData['body_plain'],
-        json.dumps(parsedData['attachments']),
+        json.dumps([{k: v for k, v in m.items() if k in ['type', 'url', 'filename']} for m in parsedData['attachments']]),
         json.dumps({}),
         datetime.datetime.strptime(parsedData['date'], "%a, %d %b %Y %H:%M:%S %z").strftime('%Y-%m-%d %H:%M:%S'),
 
