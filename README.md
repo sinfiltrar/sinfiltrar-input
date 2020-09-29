@@ -15,3 +15,11 @@ You must have a valid AWS config with valid permissions. Then run:
 ```
 ./dbconn.sh
 ```
+
+## Deploy to AWS Lambda
+
+You must have a valid AWS config with valid permissions. Then run, right from your virtual env path:
+
+```
+chalice deploy
+```
