@@ -1,13 +1,16 @@
-import requests
-from chalice import Chalice
-import json
 import boto3
+import datetime
 import email
+import json
 import logging
+import os
 import psycopg2
 import psycopg2.extras
-import os
-import datetime
+import requests
+
+from chalice import Chalice
+from chalice import NotFoundError
+
 from slugify import slugify
 
 app = Chalice(app_name='sinfiltrar-input')
@@ -65,6 +68,34 @@ def process_existing_s3():
         object.key,
         {}
       )
+
+@app.route('/releases/{slug}')
+def release(slug):
+    connection = db_conn()
+    cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    query = "SELECT * FROM docs WHERE slug = %s"
+    cursor.execute(query, (slug,))
+
+    try:
+        doc = fetch_all_as_dict(cursor)[0]
+    except IndexError:
+        raise NotFoundError("Release not found.") 
+
+    cursor.close()
+    connection.close()
+
+    response = {
+      "title": doc['title'],
+      "slug": doc['slug'],
+      "short_text": doc['short_text'],
+      "content": doc['body_plain'],
+      "date": doc['issued_at'].__str__(),
+      "media": doc['media'],
+    }
+
+    return response
+
 
 @app.on_sns_message(topic='sinfiltrar-input')
 def handle_sns_message(event):
@@ -180,6 +211,9 @@ def process_email_from_bucket(bucketName, objectKey, data):
     cursor.close()
     connection.close()
 
+
+# DB helpers
+
 def db_conn():
     try:
         conn = psycopg2.connect(host=DB_ENDPOINT, port=DB_PORT, database=DB_NAME, user=DB_USER, password=token)
@@ -187,3 +221,5 @@ def db_conn():
     except Exception as e:
         app.log.warning("Database connection failed due to {}".format(e))
         exit()
+
+fetch_all_as_dict = lambda cursor: [dict(row) for row in cursor]
