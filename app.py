@@ -1,5 +1,5 @@
-from chalice import Chalice
 import requests
+from chalice import Chalice
 import json
 import boto3
 import email
@@ -37,18 +37,11 @@ def latest():
     cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     fetch_all_as_dict = lambda cursor: [dict(row) for row in cursor]
-
-
     query = "SELECT * FROM docs ORDER BY issued_at DESC LIMIT 20"
     cursor.execute(query)
     result = fetch_all_as_dict(cursor)
     cursor.close()
     connection.close()
-
-#     def myconverter(o):
-#       if isinstance(o, datetime.datetime):
-#           return o.__str__()
-
 
     response = [{
       "title": doc['title'],
@@ -61,31 +54,43 @@ def latest():
 
     return response
 
+@app.lambda_function()
+def process_existing_s3():
+
+    bucket = s3.Bucket('sinfiltrar-input')
+
+    for object in bucket.objects.all():
+      process_email_from_bucket(
+        object.bucket_name,
+        object.key,
+        {}
+      )
 
 @app.on_sns_message(topic='sinfiltrar-input')
 def handle_sns_message(event):
-    process_event(event)
 
-def process_event(event):
-
-    snsData = json.loads(event.message)
-#     app.log.debug("Received message with subject: %s, message: %s", event.subject, event.message)
+    app.log.debug("Received message with subject: %s, message: %s", event.subject, event.message)
     app.log.debug('SNS DATA %s', snsData['mail']['commonHeaders'])
+    snsData = json.loads(event.message)
+    process_email_from_bucket(
+      snsData['receipt']['action']['bucketName'],
+      snsData['receipt']['action']['objectKey'],
+      snsData['mail']['commonHeaders']
+    )
 
-    object = s3.Object(snsData['receipt']['action']['bucketName'], snsData['receipt']['action']['objectKey'])
+def process_email_from_bucket(bucketName, objectKey, data):
 
+    object = s3.Object(bucketName, objectKey)
+    app.log.debug('Downloading from %s/%s', bucketName, objectKey)
 
-    app.log.debug('Downloading from %s/%s', snsData['receipt']['action']['bucketName'], snsData['receipt']['action']['objectKey'])
     mailBody = object.get()['Body'].read().decode('utf-8')
-    app.log.debug('Got body from %s/%s', snsData['receipt']['action']['bucketName'], snsData['receipt']['action']['objectKey'])
-
-    parsedData = snsData['mail']['commonHeaders']
+    app.log.debug('Got body from %s/%s', bucketName, objectKey)
 
     emailObject = email.message_from_string(mailBody)
-
-#     app.log.debug('parsedBody %s', parsedBody.__dict__)
-
-    parsedData['attachments'] = []
+    data['subject'] = emailObject['Subject']
+    data['from'] = emailObject['From']
+    data['date'] = emailObject['Date']
+    data['attachments'] = []
 
     if emailObject.is_multipart():
         for i, att in enumerate(emailObject.walk()):
@@ -93,13 +98,13 @@ def process_event(event):
             content_type = att.get_content_type()
             payload = att.get_payload(decode=True)
 
-            if content_type == 'text/plain' and 'body_plain' not in parsedData:
-                parsedData['body_plain'] = payload.decode('utf-8')
-            elif content_type == 'text/html' and 'body' not in parsedData:
-                parsedData['body'] = payload.decode('utf-8')
+            if content_type == 'text/plain' and 'body_plain' not in data:
+                data['body_plain'] = payload.decode('utf-8')
+            elif content_type == 'text/html' and 'body' not in data:
+                data['body'] = payload.decode('utf-8')
             elif payload != None:
                 # Ensure unique objectKeys for attachments
-                filename = '{}-{}-{}'.format(snsData['receipt']['action']['objectKey'], i, att.get_filename())
+                filename = '{}-{}-{}'.format(objectKey, i, att.get_filename())
 
                 response = s3client.put_object(
                         ACL='public-read',
@@ -107,34 +112,37 @@ def process_event(event):
                         Bucket=bucket_name,
                         ContentType=content_type,
                         Key=filename,
-                        )
+                )
 
                 location = s3client.get_bucket_location(Bucket=bucket_name)['LocationConstraint']
                 url = "https://s3-%s.amazonaws.com/%s/%s" % (location, bucket_name, filename)
                 cid = att['Content-ID'].strip('<>')
 
-                parsedData['attachments'].append({
+                data['attachments'].append({
                     'type': content_type,
                     'filename': att.get_filename(),
                     'url': url,
                     'cid': cid,
                 })
+    else:
+        data['body'] = emailObject.get_payload()
+        data['body_plain'] = emailObject.get_payload()
 
     # if we only got html
-    if not 'body_plain' in parsedData and 'body' in parsedData:
-        parsedData['body_plain'] = parsedData['body']  # TODO: strip html
+    if not 'body_plain' in data and 'body' in data:
+        data['body_plain'] = data['body'] # TODO: strip html
 
     # if we only got plain text
-    if not 'body' in parsedData and 'body_plain' in parsedData:
-        parsedData['body'] = parsedData['body_plain']
+    if not 'body' in data and 'body_plain' in data:
+        data['body'] = data['body_plain']
 
     # update src of embedded images
-    if 'body' in parsedData:
-        for att in parsedData['attachments']:
+    if 'body' in data:
+        for att in data['attachments']:
             if att['cid']:
-                parsedData['body'] = parsedData['body'].replace('cid:{}'.format(att['cid']), att['url'])
+                data['body'] = data['body'].replace('cid:{}'.format(att['cid']), att['url'])
 
-    app.log.debug('parsedData %s', parsedData)
+    app.log.debug('data %s', data)
 
     connection = db_conn()
     cursor = connection.cursor()
@@ -156,16 +164,16 @@ def process_event(event):
             issued_at=EXCLUDED.issued_at
         """
     result = cursor.execute(query, (
-        snsData['receipt']['action']['objectKey'],
-        parsedData['from'],
-        slugify(parsedData['subject']),
-        parsedData['subject'],
-        parsedData['body_plain'][:255],
-        parsedData['body'],
-        parsedData['body_plain'],
-        json.dumps([{k: v for k, v in m.items() if k in ['type', 'url', 'filename']} for m in parsedData['attachments']]),
+        objectKey,
+        data['from'],
+        slugify(data['subject']),
+        data['subject'],
+        data['body_plain'][:255],
+        data['body'],
+        data['body_plain'],
+        json.dumps([{k: v for k, v in m.items() if k in ['type', 'url', 'filename']} for m in data['attachments']]),
         json.dumps({}),
-        datetime.datetime.strptime(parsedData['date'], "%a, %d %b %Y %H:%M:%S %z").strftime('%Y-%m-%d %H:%M:%S'),
+        datetime.datetime.strptime(data['date'], "%a, %d %b %Y %H:%M:%S %z").strftime('%Y-%m-%d %H:%M:%S'),
 
     ))
     connection.commit()
