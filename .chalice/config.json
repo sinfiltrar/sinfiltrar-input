@@ -4,17 +4,13 @@
   "api_gateway_endpoint_type": "REGIONAL",
   "stages": {
     "dev": {
-        "api_gateway_stage": "api",
-        "api_gateway_custom_domain": {
-            "domain_name": "api.sinfiltr.ar",
-            "certificate_arn": "arn:aws:acm:us-west-2:153920312805:certificate/e94cb113-77e9-4a6f-a14c-ffe1e2092f58"
-        },
-		"autogen_policy": false
-    }
-  },
-  "lambda_functions": {
-    "index": {
-      "lambda_timeout": 300,
+      "autogen_policy": false,
+      "api_gateway_stage": "api",
+      "api_policy_file": "policy-dev.json",
+      "api_gateway_custom_domain": {
+        "domain_name": "api.sinfiltr.ar",
+        "certificate_arn": "arn:aws:acm:us-west-2:153920312805:certificate/e94cb113-77e9-4a6f-a14c-ffe1e2092f58"
+      },
       "subnet_ids": [
         "subnet-3aecd97c"
       ],
@@ -22,5 +18,6 @@
         "sg-e6529683"
       ]
     }
+
   }
 }
