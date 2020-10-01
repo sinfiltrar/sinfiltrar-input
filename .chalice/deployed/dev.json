@@ -35,6 +35,20 @@
       "resource_type": "rest_api",
       "rest_api_id": "jbxbeshm75",
       "rest_api_url": "https://jbxbeshm75.execute-api.us-west-2.amazonaws.com/api/"
+    },
+    {
+      "name": "api_gateway_custom_domain",
+      "resource_type": "domain_name",
+      "hosted_zone_id": "Z2OJLYMUO9EFXC",
+      "alias_domain_name": "d-74p5at5q6d.execute-api.us-west-2.amazonaws.com",
+      "certificate_arn": "arn:aws:acm:us-west-2:153920312805:certificate/e94cb113-77e9-4a6f-a14c-ffe1e2092f58",
+      "security_policy": "TLS_1_2",
+      "domain_name": "api.sinfiltr.ar",
+      "api_mapping": [
+        {
+          "key": "/"
+        }
+      ]
     }
   ],
   "schema_version": "2.0",

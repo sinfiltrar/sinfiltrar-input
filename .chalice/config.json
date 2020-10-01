@@ -1,10 +1,15 @@
 {
   "version": "2.0",
   "app_name": "sinfiltrar-input",
+  "api_gateway_endpoint_type": "REGIONAL",
   "stages": {
     "dev": {
-      "api_gateway_stage": "api",
-      "autogen_policy": false
+        "api_gateway_stage": "api",
+        "api_gateway_custom_domain": {
+            "domain_name": "api.sinfiltr.ar",
+            "certificate_arn": "arn:aws:acm:us-west-2:153920312805:certificate/e94cb113-77e9-4a6f-a14c-ffe1e2092f58"
+        },
+		"autogen_policy": false
     }
   },
   "lambda_functions": {
