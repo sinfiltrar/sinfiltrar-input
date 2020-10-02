@@ -11,4 +11,4 @@ def test_sns_handler():
             "handle_sns_message",
             client.events.generate_sns_event(message=message)
         )
-        assert response.payload == {'message': 'hello world'}
+        assert response.payload == None
