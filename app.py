@@ -10,6 +10,7 @@ import requests
 
 from chalice import Chalice
 from chalice import NotFoundError
+from chalice import CORSConfig
 
 from slugify import slugify
 
@@ -34,7 +35,15 @@ dbSession = boto3.Session()
 rdsClient = boto3.client('rds')
 token = rdsClient.generate_db_auth_token(DBHostname=DB_ENDPOINT, Port=DB_PORT, DBUsername=DB_USER, Region=DB_REGION)
 
-@app.route('/latest')
+cors_config = CORSConfig(
+    allow_origin='https://sinfiltr.ar http://localhost:3000',
+    allow_headers=['X-Special-Header'],
+    max_age=600,
+    expose_headers=['X-Special-Header'],
+    allow_credentials=True
+)
+
+@app.route('/latest', cors=cors_config)
 def latest():
     connection = db_conn()
     cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -57,19 +66,7 @@ def latest():
 
     return response
 
-@app.lambda_function()
-def process_existing_s3():
-
-    bucket = s3.Bucket('sinfiltrar-input')
-
-    for object in bucket.objects.all():
-      process_email_from_bucket(
-        object.bucket_name,
-        object.key,
-        {}
-      )
-
-@app.route('/releases/{slug}')
+@app.route('/releases/{slug}', cors=cors_config)
 def release(slug):
     connection = db_conn()
     cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -80,7 +77,7 @@ def release(slug):
     try:
         doc = fetch_all_as_dict(cursor)[0]
     except IndexError:
-        raise NotFoundError("Release not found.") 
+        raise NotFoundError("Release not found.")
 
     cursor.close()
     connection.close()
@@ -105,11 +102,21 @@ def handle_sns_message(event):
     snsData = json.loads(event.message)
     process_email_from_bucket(
       snsData['receipt']['action']['bucketName'],
-      snsData['receipt']['action']['objectKey'],
-      snsData['mail']['commonHeaders']
+      snsData['receipt']['action']['objectKey']
     )
 
-def process_email_from_bucket(bucketName, objectKey, data):
+@app.lambda_function()
+def process_existing_s3():
+
+    bucket = s3.Bucket('sinfiltrar-input')
+
+    for object in bucket.objects.all():
+      process_email_from_bucket(
+        object.bucket_name,
+        object.key
+      )
+
+def process_email_from_bucket(bucketName, objectKey):
 
     object = s3.Object(bucketName, objectKey)
     app.log.debug('Downloading from %s/%s', bucketName, objectKey)
