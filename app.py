@@ -107,7 +107,6 @@ def handle_sns_message(event):
 
 @app.lambda_function()
 def process_existing_s3():
-
     sns = boto3.client('sns')
     bucket = s3.Bucket('sinfiltrar-input')
 
