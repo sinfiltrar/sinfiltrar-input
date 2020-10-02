@@ -5,38 +5,33 @@
       "Sid": "VisualEditor0",
       "Effect": "Allow",
       "Action": [
-        "s3:GetObject",
+        "ec2:CreateNetworkInterface",
+        "ec2:DescribeInstances",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DeleteNetworkInterface",
+        "ec2:AttachNetworkInterface"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "VisualEditor1",
+      "Effect": "Allow",
+      "Action": [
         "s3:PutObject",
-        "s3:ListBucket",
+        "s3:GetObject",
         "logs:CreateLogStream",
+        "rds-db:connect",
+        "s3:ListBucket",
         "logs:CreateLogGroup",
         "logs:PutLogEvents"
       ],
       "Resource": [
         "arn:*:logs:*:*:*",
+        "arn:aws:rds-db:us-west-2:153920312805:dbuser:*/*",
         "arn:aws:s3:::sinfiltrar-input/*",
-        "arn:aws:s3:::sinfiltrar-attachments/*"
+        "arn:aws:s3:::sinfiltrar-attachments/*",
+        "arn:aws:s3:::sinfiltrar-input"
       ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "rds-db:connect"
-      ],
-      "Resource": [
-        "arn:aws:rds-db:us-west-2:153920312805:dbuser:*/*"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:DescribeNetworkInterfaces",
-        "ec2:CreateNetworkInterface",
-        "ec2:DeleteNetworkInterface",
-        "ec2:DescribeInstances",
-        "ec2:AttachNetworkInterface"
-      ],
-      "Resource": "*"
     }
   ]
 }
