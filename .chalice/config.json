@@ -16,7 +16,8 @@
       ],
       "security_group_ids": [
         "sg-e6529683"
-      ]
+      ],
+      "connection_timeout": 300
     }
 
   }
