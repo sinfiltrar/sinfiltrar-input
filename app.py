@@ -111,13 +111,13 @@ def handle_sns_message(event):
 def process_existing_s3(event, context):
 
     sns = boto3.client('sns')
-    # bucket = s3.Bucket('sinfiltrar-input')
+    bucket = s3.Bucket('sinfiltrar-input')
 
-    for object in s3client.list_objects_v2(Bucket='sinfiltrar-input')['Contents']:
+    for object in bucket.objects.all():
         # Publish a simple message to the specified SNS topic
         response = sns.publish(
             TopicArn='arn:aws:sns:us-west-2:153920312805:sinfiltrar-input',
-            Message=json.dumps({ 'receipt': { 'action': { 'bucketName': 'sinfiltrar-input', 'objectKey': object['Key'] } } }),
+            Message=json.dumps({ 'receipt': { 'action': { 'bucketName': object.bucket_name, 'objectKey': object.key } } }),
         )
 
 
