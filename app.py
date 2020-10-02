@@ -164,8 +164,8 @@ def process_email_from_bucket(bucketName, objectKey):
                     'cid': cid,
                 })
     else:
-        data['body'] = emailObject.get_payload(decode=True).decode('utf-8')
-        data['body_plain'] = emailObject.get_payload(decode=True).decode('utf-8')
+        data['body'] = emailObject.get_payload(decode=True)
+        data['body_plain'] = emailObject.get_payload(decode=True)
 
     # if we only got html
     if not 'body_plain' in data and 'body' in data:

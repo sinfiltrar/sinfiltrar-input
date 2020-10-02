@@ -2,7 +2,7 @@ from chalice.test import Client
 from app import app
 
 
-with open('example_sns_message.json', 'r') as file:
+with open('example_sns_message_embeded.json', 'r') as file:
     message = file.read()
 
 def test_sns_handler():
