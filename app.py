@@ -98,10 +98,7 @@ def release(slug):
 def handle_sns_message(event):
 
     snsData = json.loads(event.message)
-    process_email_from_bucket(
-      snsData['receipt']['action']['bucketName'],
-      snsData['receipt']['action']['objectKey']
-    )
+    process_email_from_bucket(snsData['receipt']['action']['bucketName'], snsData['receipt']['action']['objectKey'])
 
 
 

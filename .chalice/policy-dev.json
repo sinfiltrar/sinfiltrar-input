@@ -17,13 +17,14 @@
       "Sid": "VisualEditor1",
       "Effect": "Allow",
       "Action": [
-        "s3:PutObject",
         "s3:GetObject",
-        "logs:CreateLogStream",
-        "rds-db:connect",
+        "s3:PutObject",
+        "s3:PutObjectAcl",
         "s3:ListBucket",
+        "logs:CreateLogStream",
         "logs:CreateLogGroup",
-        "logs:PutLogEvents"
+        "logs:PutLogEvents",
+        "rds-db:connect"
       ],
       "Resource": [
         "arn:*:logs:*:*:*",
