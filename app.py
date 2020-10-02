@@ -36,7 +36,7 @@ rdsClient = boto3.client('rds')
 token = rdsClient.generate_db_auth_token(DBHostname=DB_ENDPOINT, Port=DB_PORT, DBUsername=DB_USER, Region=DB_REGION)
 
 cors_config = CORSConfig(
-    allow_origin='https://sinfiltr.ar http://sinfiltr.ar http://localhost:3000',
+    allow_origin='http://sinfiltr.ar',
     allow_headers=['X-Special-Header'],
     max_age=600,
     expose_headers=['X-Special-Header'],
