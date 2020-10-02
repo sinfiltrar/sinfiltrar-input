@@ -106,18 +106,18 @@ def handle_sns_message(event):
 
 
 @app.lambda_function()
-# @app.route('/all', cors=cors_config)
-def process_existing_s3(event, context):
+def process_existing_s3():
 
     sns = boto3.client('sns')
     bucket = s3.Bucket('sinfiltrar-input')
 
     for object in bucket.objects.all():
-      # Publish a simple message to the specified SNS topic
-      response = sns.publish(
-          TopicArn='arn:aws:sns:us-west-2:153920312805:sinfiltrar-input',
-          Message=json.dumps({ 'receipt': { 'action': { 'bucketName': object.bucket_name, 'objectKey': object.key } } }),
-      )
+        # Publish a simple message to the specified SNS topic
+        response = sns.publish(
+            TopicArn='arn:aws:sns:us-west-2:153920312805:sinfiltrar-input',
+            Message=json.dumps({ 'receipt': { 'action': { 'bucketName': object.bucket_name, 'objectKey': object.key } } }),
+        )
+
 
 def process_email_from_bucket(bucketName, objectKey):
 
@@ -128,10 +128,12 @@ def process_email_from_bucket(bucketName, objectKey):
     app.log.debug('Got body from %s/%s', bucketName, objectKey)
 
     emailObject = email.message_from_string(mailBody)
-    data['subject'] = emailObject['Subject']
-    data['from'] = emailObject['From']
-    data['date'] = emailObject['Date']
-    data['attachments'] = []
+    data = {
+        'subject': emailObject['Subject'],
+        'from': emailObject['From'],
+        'date': emailObject['Date'],
+        'attachments': [],
+    }
 
     if emailObject.is_multipart():
         for i, att in enumerate(emailObject.walk()):
