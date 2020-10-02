@@ -97,23 +97,26 @@ def release(slug):
 @app.on_sns_message(topic='sinfiltrar-input')
 def handle_sns_message(event):
 
-    app.log.debug("Received message with subject: %s, message: %s", event.subject, event.message)
-    app.log.debug('SNS DATA %s', snsData['mail']['commonHeaders'])
     snsData = json.loads(event.message)
     process_email_from_bucket(
       snsData['receipt']['action']['bucketName'],
       snsData['receipt']['action']['objectKey']
     )
 
+
+
 @app.lambda_function()
+# @app.route('/all', cors=cors_config)
 def process_existing_s3(event, context):
 
+    sns = boto3.client('sns')
     bucket = s3.Bucket('sinfiltrar-input')
 
     for object in bucket.objects.all():
-      process_email_from_bucket(
-        object.bucket_name,
-        object.key
+      # Publish a simple message to the specified SNS topic
+      response = sns.publish(
+          TopicArn='arn:aws:sns:us-west-2:153920312805:sinfiltrar-input',
+          Message=json.dumps({ 'receipt': { 'action': { 'bucketName': object.bucket_name, 'objectKey': object.key } } }),
       )
 
 def process_email_from_bucket(bucketName, objectKey):
