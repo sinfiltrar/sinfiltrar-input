@@ -106,7 +106,7 @@ def handle_sns_message(event):
     )
 
 @app.lambda_function()
-def process_existing_s3():
+def process_existing_s3(event, context):
 
     bucket = s3.Bucket('sinfiltrar-input')
 
