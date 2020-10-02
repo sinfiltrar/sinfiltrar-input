@@ -105,8 +105,9 @@ def handle_sns_message(event):
 
 
 
-@app.lambda_function()
 # @app.route('/all', cors=cors_config)
+# def process_existing_s3():
+@app.lambda_function()
 def process_existing_s3(event, context):
 
     sns = boto3.client('sns')
@@ -119,6 +120,7 @@ def process_existing_s3(event, context):
           Message=json.dumps({ 'receipt': { 'action': { 'bucketName': object.bucket_name, 'objectKey': object.key } } }),
       )
 
+
 def process_email_from_bucket(bucketName, objectKey):
 
     object = s3.Object(bucketName, objectKey)
@@ -128,10 +130,12 @@ def process_email_from_bucket(bucketName, objectKey):
     app.log.debug('Got body from %s/%s', bucketName, objectKey)
 
     emailObject = email.message_from_string(mailBody)
-    data['subject'] = emailObject['Subject']
-    data['from'] = emailObject['From']
-    data['date'] = emailObject['Date']
-    data['attachments'] = []
+    data = {
+        'subject': emailObject['Subject'],
+        'from': emailObject['From'],
+        'date': emailObject['Date'],
+        'attachments': [],
+    }
 
     if emailObject.is_multipart():
         for i, att in enumerate(emailObject.walk()):
