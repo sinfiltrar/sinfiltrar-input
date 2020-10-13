@@ -13,3 +13,5 @@ CREATE TABLE docs
     meta jsonb,
     created_at timestamp NOT NULL DEFAULT current_timestamp
 );
+
+ALTER TABLE docs ADD COLUMN issuer_id varchar(255) AFTER id
