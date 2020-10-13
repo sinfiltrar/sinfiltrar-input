@@ -2,6 +2,12 @@
   "version": "2.0",
   "app_name": "sinfiltrar-input",
   "api_gateway_endpoint_type": "REGIONAL",
+  "subnet_ids": [
+    "subnet-3aecd97c"
+  ],
+  "security_group_ids": [
+    "sg-e6529683"
+  ],
   "stages": {
     "dev": {
       "autogen_policy": false,
@@ -11,12 +17,6 @@
         "domain_name": "api.sinfiltr.ar",
         "certificate_arn": "arn:aws:acm:us-west-2:153920312805:certificate/e94cb113-77e9-4a6f-a14c-ffe1e2092f58"
       },
-      "subnet_ids": [
-        "subnet-3aecd97c"
-      ],
-      "security_group_ids": [
-        "sg-e6529683"
-      ],
       "connection_timeout": 300,
       "environment_variables": {
           "ALLOW_ORIGIN": "http://sinfiltr.ar"
