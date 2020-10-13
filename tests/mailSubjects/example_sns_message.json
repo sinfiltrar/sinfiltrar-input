@@ -1,0 +1,139 @@
+{
+  "notificationType": "Received",
+  "mail": {
+    "timestamp": "2020-09-23T17:59:18.054Z",
+    "source": "raskovsky@gmail.com",
+    "messageId": "kjavqfugb7a3v8ij5gcq7djegpjiu769f0dohdg1",
+    "destination": [
+      "input@sinfiltrar.com.ar"
+    ],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "Return-Path",
+        "value": "<raskovsky@gmail.com>"
+      },
+      {
+        "name": "Received",
+        "value": "from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178]) by inbound-smtp.us-west-2.amazonaws.com with SMTP id kjavqfugb7a3v8ij5gcq7djegpjiu769f0dohdg1 for input@sinfiltrar.com.ar; Wed, 23 Sep 2020 17:59:18 +0000 (UTC)"
+      },
+      {
+        "name": "X-SES-Spam-Verdict",
+        "value": "PASS"
+      },
+      {
+        "name": "X-SES-Virus-Verdict",
+        "value": "PASS"
+      },
+      {
+        "name": "Received-SPF",
+        "value": "pass (spfCheck: domain of _spf.google.com designates 209.85.214.178 as permitted sender) client-ip=209.85.214.178; envelope-from=raskovsky@gmail.com; helo=mail-pl1-f178.google.com;"
+      },
+      {
+        "name": "Authentication-Results",
+        "value": "amazonses.com; spf=pass (spfCheck: domain of _spf.google.com designates 209.85.214.178 as permitted sender) client-ip=209.85.214.178; envelope-from=raskovsky@gmail.com; helo=mail-pl1-f178.google.com; dkim=pass header.i=@gmail.com; dmarc=pass header.from=gmail.com;"
+      },
+      {
+        "name": "X-SES-RECEIPT",
+        "value": "AEFBQUFBQUFBQUFGbUJMcjRpeVpDVWJUZFlCNzZFMGZZWmlWSHVlUk1xczd3bnluOUhhN2FtTVpTNDMrL25IR0Q5cFY4ZnJUM1RUWGFiVDFGazRxTFArNnNGT2JiQTNMcVVNbnFncys0UElxTjczQzlpVUN5OXZ3RWpNVG1zSWFiRzEwT2lsaVB3SXdaVy8yYUJqL01vUEh4dTNhbkxsQmRqVWpBQ0ZneDdNaEhhcHFER0FRSmN6eFF6TEt5WGE1elI3a1BBKzBqd2h3eHZES2F0VXNPMjd0ZzY3Y2h5a0FzNVZFUm5qWUtkSkZMR2lySFhrYmdTT28vRjNyc3cxRVhGZC9UREJ4eTBxbTJ0SG9sQjB4L2k4Y0tiOWFOdWtpbW5peU5kY3lFOEFTRXJMSEFGTW0xUmc9PQ=="
+      },
+      {
+        "name": "X-SES-DKIM-SIGNATURE",
+        "value": "a=rsa-sha256; q=dns/txt; b=cx7SqtM+QuCOWac4UVtBk/lI0nuJSsB6HQH8GLV5GXJ/JI98B/XQxlfzfFY+AVgFYqZbAWO78anlZnHaG1/1bYNAY2cK3VNO2IQXVW/8HbJjHYQuh5Hyl7LoCew6k2Norv2mR1nBwNYTnYlKmr3+I0LdTfCYTmmXf3EUsEeHCLc=; c=relaxed/simple; s=hsbnp7p3ensaochzwyq5wwmceodymuwv; d=amazonses.com; t=1600883958; v=1; bh=9/UP9mKtsan1YTtH5Hqyx3GxqRgnZHDWlGP2cnpU8xc=; h=From:To:Cc:Bcc:Subject:Date:Message-ID:MIME-Version:Content-Type:X-SES-RECEIPT;"
+      },
+      {
+        "name": "Received",
+        "value": "by mail-pl1-f178.google.com with SMTP id r19so131672pls.1 for <input@sinfiltrar.com.ar>; Wed, 23 Sep 2020 10:59:17 -0700 (PDT)"
+      },
+      {
+        "name": "DKIM-Signature",
+        "value": "v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025; h=mime-version:from:date:message-id:subject:to; bh=9/UP9mKtsan1YTtH5Hqyx3GxqRgnZHDWlGP2cnpU8xc=; b=PCY6H4NCmJTDY94JbdfrS168Ne3CdZGOocFh8h3KjSqHd0V77p1cDDUgBhkz3iSigYodzeO53Fz6Rm82heKzdmAtbCEsMO/6RczBxJRoigoj4jkTYYguq+e66PZb+nKaatiwHR18RDdw0CK4YPFUig65eJHJHYOq/gPwRPwHUjBjbeunfq0HZPuedPSZODFitfqkRBJ7zx/OGf36iq/jmgvySBfDDD095oB0icfoQXgimo4pdYsD6z4lKg5m5o/GnlAeCu5ikfLdVIBtYII//+mmeq4zmuGZjEpBs0oid1WoaYYJcbM7zt+i5Y28lqLQmgzC8euBDrZluipI2rxr9Q=="
+      },
+      {
+        "name": "X-Google-DKIM-Signature",
+        "value": "v=1; a=rsa-sha256; c=relaxed/relaxed; d=1e100.net; s=20161025; h=x-gm-message-state:mime-version:from:date:message-id:subject:to; bh=9/UP9mKtsan1YTtH5Hqyx3GxqRgnZHDWlGP2cnpU8xc=; b=RCFEeT1PdWsjIipw4EeqASiizqojClPVDxiW0R+Ue8GBtyIrjXloQ3HtfUuT5bEhGD i/7bv/a7qh0dZ70EaWui616RytiJpJ3WpBneB/4xGx/zfKxEPI3/zVHJ0oCrEDjyZvRU e8phXdY13WNR4Amtzz5QE3klOqTfcCsr1NesCVQxUsWkpG/CmxiK5/DlLcOwNnEIKc86 OLy0Espr2wcWUgt62FMfbn2CC41XrSXE6nHknmZk+8UyIG+pw7h4HrFQvhNla+zn+N9o YTycPF8HtU8O9mQGcHfdenMPKubtrmmerND861Y5niPJKBSqMfsjr/MIDJhrtU3KCMTW XMbw=="
+      },
+      {
+        "name": "X-Gm-Message-State",
+        "value": "AOAM533gu1N5s9h/eMOsXaXMOH4ahDO9jadXiA/ZIWmffSh/xtqioVdT W6Y1M7vIS7IJVTCK+/9Br82Pp0/6MiX0AzWitOiHEQ1AdNw="
+      },
+      {
+        "name": "X-Google-Smtp-Source",
+        "value": "ABdhPJy9beiWcTC7gjw6NXofappLUoAvEQnkjbPZ7aC1rh+tDlCBwWvosoHr1KQ4EgMIqpuCdfcKecdEE969EjXQIgk="
+      },
+      {
+        "name": "X-Received",
+        "value": "by 2002:a17:902:a413:b029:d2:1fde:d2af with SMTP id p19-20020a170902a413b02900d21fded2afmr922146plq.56.1600883957443; Wed, 23 Sep 2020 10:59:17 -0700 (PDT)"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "From",
+        "value": "Iván Raskovsky <raskovsky@gmail.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Wed, 23 Sep 2020 14:59:06 -0300"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<CALqO6oFLu-deGh2UGOOYwKx7Ko+Wb+mTT_gED3oyonc58xy6jQ@mail.gmail.com>"
+      },
+      {
+        "name": "Subject",
+        "value": "test subject"
+      },
+      {
+        "name": "To",
+        "value": "input@sinfiltrar.com.ar"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/mixed; boundary=\"0000000000009cc6c005affed797\""
+      }
+    ],
+    "commonHeaders": {
+      "returnPath": "raskovsky@gmail.com",
+      "from": [
+        "\"Iván Raskovsky\" <raskovsky@gmail.com>"
+      ],
+      "date": "Wed, 23 Sep 2020 14:59:06 -0300",
+      "to": [
+        "input@sinfiltrar.com.ar"
+      ],
+      "messageId": "<CALqO6oFLu-deGh2UGOOYwKx7Ko+Wb+mTT_gED3oyonc58xy6jQ@mail.gmail.com>",
+      "subject": "test subject"
+    }
+  },
+  "receipt": {
+    "timestamp": "2020-09-23T17:59:18.054Z",
+    "processingTimeMillis": 420,
+    "recipients": [
+      "input@sinfiltrar.com.ar"
+    ],
+    "spamVerdict": {
+      "status": "PASS"
+    },
+    "virusVerdict": {
+      "status": "PASS"
+    },
+    "spfVerdict": {
+      "status": "PASS"
+    },
+    "dkimVerdict": {
+      "status": "PASS"
+    },
+    "dmarcVerdict": {
+      "status": "PASS"
+    },
+    "action": {
+      "type": "S3",
+      "topicArn": "arn:aws:sns:us-west-2:153920312805:sinfiltrar-input",
+      "bucketName": "sinfiltrar-input",
+      "objectKeyPrefix": "",
+      "objectKey": "tgc9bleng0asjn49k6u2336kn9dh6838siljg1g1"
+    }
+  }
+}
