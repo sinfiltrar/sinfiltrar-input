@@ -3,3 +3,4 @@ boto3==1.14.57
 botocore==1.17.57
 aws-psycopg2
 python-slugify
+mail-parser<3.13

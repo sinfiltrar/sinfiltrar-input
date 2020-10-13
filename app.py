@@ -1,18 +1,20 @@
 import boto3
 import datetime
-import email
 import json
 import logging
 import os
 import psycopg2
 import psycopg2.extras
 import requests
+import base64
+from pprint import pprint
 
 from chalice import Chalice
 from chalice import NotFoundError
 from chalice import CORSConfig
 
 from slugify import slugify
+import mailparser
 
 app = Chalice(app_name='sinfiltrar-input')
 app.log.setLevel(logging.INFO)
@@ -20,6 +22,7 @@ app.debug = True
 
 # S3 init
 bucket_name = 'sinfiltrar-attachments'
+bucket_location = 'https://sinfiltrar-attachments.s3-us-west-2.amazonaws.com'
 s3 = boto3.resource('s3', )
 s3client = boto3.client('s3')
 
@@ -101,7 +104,6 @@ def handle_sns_message(event):
     process_email_from_bucket(snsData['receipt']['action']['bucketName'], snsData['receipt']['action']['objectKey'])
 
 
-
 @app.lambda_function()
 def process_existing_s3():
     sns = boto3.client('sns')
@@ -123,63 +125,7 @@ def process_email_from_bucket(bucketName, objectKey):
     mailBody = object.get()['Body'].read().decode('utf-8')
     app.log.debug('Got body from %s/%s', bucketName, objectKey)
 
-    emailObject = email.message_from_string(mailBody)
-    data = {
-        'subject': emailObject['Subject'],
-        'from': emailObject['From'],
-        'date': emailObject['Date'],
-        'attachments': [],
-    }
-
-    if emailObject.is_multipart():
-        for i, att in enumerate(emailObject.walk()):
-
-            content_type = att.get_content_type()
-            payload = att.get_payload(decode=True)
-
-            if content_type == 'text/plain' and 'body_plain' not in data:
-                data['body_plain'] = payload.decode('utf-8')
-            elif content_type == 'text/html' and 'body' not in data:
-                data['body'] = payload.decode('utf-8')
-            elif payload != None:
-                # Ensure unique objectKeys for attachments
-                filename = '{}-{}-{}'.format(objectKey, i, att.get_filename())
-
-                response = s3client.put_object(
-                        ACL='public-read',
-                        Body=payload,
-                        Bucket=bucket_name,
-                        ContentType=content_type,
-                        Key=filename,
-                )
-
-                location = s3client.get_bucket_location(Bucket=bucket_name)['LocationConstraint']
-                url = "https://s3-%s.amazonaws.com/%s/%s" % (location, bucket_name, filename)
-                cid = att['Content-ID'].strip('<>')
-
-                data['attachments'].append({
-                    'type': content_type,
-                    'filename': att.get_filename(),
-                    'url': url,
-                    'cid': cid,
-                })
-    else:
-        data['body'] = emailObject.get_payload(decode=True)
-        data['body_plain'] = emailObject.get_payload(decode=True)
-
-    # if we only got html
-    if not 'body_plain' in data and 'body' in data:
-        data['body_plain'] = data['body'] # TODO: strip html
-
-    # if we only got plain text
-    if not 'body' in data and 'body_plain' in data:
-        data['body'] = data['body_plain']
-
-    # update src of embedded images
-    if 'body' in data:
-        for att in data['attachments']:
-            if att['cid']:
-                data['body'] = data['body'].replace('cid:{}'.format(att['cid']), att['url'])
+    data = process_email_string(mailBody, objectKey)
 
     app.log.debug('data %s', data)
 
@@ -212,12 +158,65 @@ def process_email_from_bucket(bucketName, objectKey):
         data['body_plain'],
         json.dumps([{k: v for k, v in m.items() if k in ['type', 'url', 'filename']} for m in data['attachments']]),
         json.dumps({}),
-        datetime.datetime.strptime(data['date'], "%a, %d %b %Y %H:%M:%S %z").strftime('%Y-%m-%d %H:%M:%S'),
+        data['date'].strftime('%Y-%m-%d %H:%M:%S'),
 
     ))
     connection.commit()
     cursor.close()
     connection.close()
+
+
+def process_email_string(raw_email, key):
+    mail = mailparser.parse_from_string(raw_email)
+    data = {
+        'subject': mail.subject,
+        'from': mail._from,
+        'date': mail.date,
+        'body': mail.body,
+        'body_plain': mail.body,
+        'attachments': [],
+    }
+
+    for i, att in enumerate(mail.attachments):
+
+        # Ensure unique objectKeys for attachments
+        filename = '{}-{}-{}'.format(key, i, att['filename'])
+
+        pprint(att)
+        response = s3client.put_object(
+                ACL='public-read',
+                Body=base64.b64decode(att['payload']),
+                Bucket=bucket_name,
+                ContentType=att['mail_content_type'],
+                Key=filename,
+        )
+
+        location = s3client.get_bucket_location(Bucket=bucket_name)['LocationConstraint']
+        url = "%s/%s" % (bucket_location, filename)
+        cid = att['content-id'].strip('<>')
+
+        data['attachments'].append({
+            'type': att['mail_content_type'],
+            'filename': att['filename'],
+            'url': url,
+            'cid': cid,
+        })
+
+    # if we only got html
+    if not 'body_plain' in data and 'body' in data:
+        data['body_plain'] = data['body'] # TODO: strip html
+
+    # if we only got plain text
+    if not 'body' in data and 'body_plain' in data:
+        data['body'] = data['body_plain']
+
+    # update src of embedded images
+    if 'body' in data:
+        for att in data['attachments']:
+            if att['cid']:
+                data['body'] = data['body'].replace('cid:{}'.format(att['cid']), att['url'])
+
+    return data
 
 
 # DB helpers
