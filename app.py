@@ -104,12 +104,16 @@ def handle_sns_message(event):
     process_email_from_bucket(snsData['receipt']['action']['bucketName'], snsData['receipt']['action']['objectKey'])
 
 
-@app.lambda_function()
-def process_existing_s3(event, context):
+# @app.lambda_function()
+# def process_existing_s3(event, context):
+@app.route('/all')
+def process_existing_s3():
     sns = boto3.client('sns')
     bucket = s3.Bucket('sinfiltrar-input')
 
+    app.log.debug('Connected to bucket')
     for object in bucket.objects.all():
+        app.log.debug('Sending sns %s', object.key)
         # Publish a simple message to the specified SNS topic
         response = sns.publish(
             TopicArn='arn:aws:sns:us-west-2:153920312805:sinfiltrar-input',
