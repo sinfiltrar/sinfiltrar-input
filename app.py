@@ -18,7 +18,7 @@ app.log.setLevel(logging.INFO)
 app.debug = True
 
 cors_config = CORSConfig(
-    allow_origin='http://sinfiltr.ar',
+    allow_origin=os.environ["ALLOW_ORIGIN"],
     allow_headers=['X-Special-Header'],
     max_age=600,
     expose_headers=['X-Special-Header'],
@@ -27,7 +27,6 @@ cors_config = CORSConfig(
 
 @app.route('/latest', cors=cors_config)
 def latest():
-
     query = "SELECT * FROM docs ORDER BY issued_at DESC LIMIT 20"
     result = db_query(query)
 

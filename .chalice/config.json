@@ -17,8 +17,15 @@
       "security_group_ids": [
         "sg-e6529683"
       ],
-      "connection_timeout": 300
+      "connection_timeout": 300,
+      "environment_variables": {
+          "ALLOW_ORIGIN": "http://sinfiltr.ar"
+      }
+    },
+    "local": {
+      "environment_variables": {
+          "ALLOW_ORIGIN": "http://localhost:3000"
+      }
     }
-
   }
 }

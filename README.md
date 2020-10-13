@@ -24,3 +24,11 @@ You must have a valid AWS config with valid permissions. Then run, right from yo
 chalice deploy
 ```
 
+## Running locally
+
+```
+chalice local --stage local
+```
+
+It's important to select the local stage so we set the appropiate CORS headers
+and the local frontend can query from this instance.
