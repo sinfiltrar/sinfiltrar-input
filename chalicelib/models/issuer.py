@@ -8,6 +8,12 @@ class Issuer:
         self.data = data
 
     @classmethod
+    def all(cls):
+        query = "SELECT id, slug, name FROM issuers ORDER BY name desc LIMIT 50"
+        issuers = db_query(query)
+        return [cls(issuer) for issuer in issuers]
+
+    @classmethod
     def from_email(cls, email):
 
         query = """

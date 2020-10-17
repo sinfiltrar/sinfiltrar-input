@@ -10,8 +10,9 @@ from chalice import Chalice
 from chalice import NotFoundError
 from chalice import CORSConfig
 from chalicelib.db import db_conn, db_query
-from chalicelib.aws import s3
+from chalicelib.aws import s3, boto3
 from chalicelib.models.doc import Doc
+from chalicelib.models.issuer import Issuer
 
 app = Chalice(app_name='sinfiltrar-input')
 app.log.setLevel(logging.INFO)
@@ -41,6 +42,11 @@ def latest():
 
     return response
 
+@app.route('/issuers', cors=cors_config)
+def all_issuers():
+    issuers = Issuer.all()
+    return json.dumps([issuer.data for issuer in issuers])
+
 @app.route('/releases/{slug}', cors=cors_config)
 def release(slug):
     query = "SELECT * FROM docs WHERE slug = %s"
@@ -64,12 +70,14 @@ def release(slug):
 
 @app.on_sns_message(topic='sinfiltrar-input')
 def handle_sns_message(event):
-
     snsData = json.loads(event.message)
-
     doc = Doc.from_s3(snsData['receipt']['action']['objectKey'])
-
     doc.save()
+
+
+# @app.route('/all', cors=cors_config)
+# def process_existing_s3_endpoint():
+#     process_existing_s3(None, None)
 
 
 @app.lambda_function()
