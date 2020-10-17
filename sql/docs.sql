@@ -14,4 +14,5 @@ CREATE TABLE docs
     created_at timestamp NOT NULL DEFAULT current_timestamp
 );
 
-ALTER TABLE docs ADD COLUMN issuer_id varchar(255) AFTER id
+ALTER TABLE docs ADD COLUMN issuer_id varchar(255);
+ALTER TABLE docs ADD COLUMN issuer_name varchar(255);

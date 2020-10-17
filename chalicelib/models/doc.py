@@ -5,6 +5,7 @@ from slugify import slugify
 
 from chalicelib.aws import s3, s3client, bucket_name, bucket_location, AWS_INPUT_BUCKET_NAME
 from chalicelib.db import db_query
+from chalicelib.models.issuer import Issuer
 
 class Doc:
 
@@ -75,17 +76,25 @@ class Doc:
                 if att['cid']:
                     data['body_html'] = data['body_html'].replace('cid:{}'.format(att['cid']), att['url'])
 
+        issuer = Issuer.from_email(data['from_email'][0][1])
+
+        data['issuer_id'] = issuer.get_id() if isinstance(issuer, Issuer) else None
+        data['issuer_name'] = issuer.get_name() if isinstance(issuer, Issuer) else None
+
         return cls(data)
+
 
     def save(self):
 
           query = """
               INSERT INTO docs
-                  (id, from_email, slug, title, short_text, body_html, body_plain, media, meta, issued_at)
+                  (id, issuer_id, issuer_name, from_email, slug, title, short_text, body_html, body_plain, media, meta, issued_at)
               VALUES
-                  (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                  (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
               ON CONFLICT (id)
               DO UPDATE SET
+                  issuer_id=EXCLUDED.issuer_id,
+                  issuer_name=EXCLUDED.issuer_name,
                   from_email=EXCLUDED.from_email,
                   slug=EXCLUDED.slug,
                   title=EXCLUDED.title,
@@ -96,9 +105,11 @@ class Doc:
                   meta=EXCLUDED.meta,
                   issued_at=EXCLUDED.issued_at
               """
-
+              
           result = db_query(query, (
               self.data['id'],
+              self.data['issuer_id'],
+              self.data['issuer_name'],
               self.data['from_email'],
               slugify(self.data['title']),
               self.data['title'],

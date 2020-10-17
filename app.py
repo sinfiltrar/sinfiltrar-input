@@ -68,12 +68,11 @@ def handle_sns_message(event):
     snsData = json.loads(event.message)
 
     doc = Doc.from_s3(snsData['receipt']['action']['objectKey'])
+
     doc.save()
 
 
-# @app.lambda_function()
-# def process_existing_s3(event, context):
-@app.route('/all')
+@app.lambda_function()
 def process_existing_s3():
     sns = boto3.client('sns')
     bucket = s3.Bucket('sinfiltrar-input')

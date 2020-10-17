@@ -20,13 +20,17 @@ def db_query(query, values=None):
     cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
     fetch_all_as_dict = lambda cursor: [dict(row) for row in cursor]
 
-    cursor.execute(query, values)
+    test = cursor.execute(query, values)
 
-    try:
-        result = fetch_all_as_dict(cursor)
-    except psycopg2.ProgrammingError:
+    if cursor.description != None:
+        try:
+            result = fetch_all_as_dict(cursor)
+        except psycopg2.ProgrammingError:
+            result = None
+    else:
         result = None
 
+    connection.commit()
     cursor.close()
     connection.close()
     return result
