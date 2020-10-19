@@ -1,3 +1,4 @@
+import json
 from chalicelib.db import db_query
 
 class Issuer:
@@ -7,11 +8,20 @@ class Issuer:
     def __init__(self, data):
         self.data = data
 
+    def __repr__(self):
+        return json.dumps(self.data)
+
     @classmethod
     def all(cls):
         query = "SELECT id, slug, name FROM issuers ORDER BY name desc LIMIT 50"
         issuers = db_query(query)
         return [cls(issuer) for issuer in issuers]
+
+    @classmethod
+    def one_by_slug(cls, slug):
+        query = "SELECT id, slug, name FROM issuers WHERE slug = %s LIMIT 1"
+        issuer = db_query(query, (slug,))[0]
+        return cls(issuer)
 
     @classmethod
     def from_email(cls, email):
@@ -31,7 +41,6 @@ class Issuer:
 
     def get_name(self):
         return self.data['name']
-
 
     def save(self):
 

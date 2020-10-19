@@ -38,6 +38,7 @@ def latest():
       "content": doc['body_plain'],
       "date": doc['issued_at'].__str__(),
       "media": doc['media'],
+      "issuer_id": doc.data['issuer_id'],
     } for doc in result]
 
     return response
@@ -46,6 +47,21 @@ def latest():
 def all_issuers():
     issuers = Issuer.all()
     return json.dumps([issuer.data for issuer in issuers])
+
+
+@app.route('/issuers/{issuerSlug}/docs', cors=cors_config)
+def issuer_docs(issuerSlug):
+    issuer = Issuer.one_by_slug(issuerSlug)
+    docs = Doc.get_by_issuer(issuer)
+    return [{
+        "title": doc.data['title'],
+        "slug": doc.data['slug'],
+        "short_text": doc.data['short_text'],
+        "content": doc.data['body_plain'],
+        "date": doc.data['issued_at'].__str__(),
+        "media": doc.data['media'],
+        "issuer_id": doc.data['issuer_id'],
+    } for doc in docs]
 
 @app.route('/releases/{slug}', cors=cors_config)
 def release(slug):

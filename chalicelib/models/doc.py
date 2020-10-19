@@ -7,12 +7,22 @@ from chalicelib.aws import s3, s3client, bucket_name, bucket_location, AWS_INPUT
 from chalicelib.db import db_query
 from chalicelib.models.issuer import Issuer
 
-class Doc:
+class Doc(dict):
 
     data = None
 
     def __init__(self, data):
         self.data = data
+
+    def __repr__(self):
+        return json.dumps(self.data)
+
+    @classmethod
+    def get_by_issuer(cls, issuer):
+        query = 'SELECT * FROM docs WHERE issuer_id = %s ORDER BY issued_at'
+        issuer_id = issuer.get_id()
+        results = db_query(query, (issuer_id, ))
+        return [cls(row) for row in results]
 
     @classmethod
     def from_s3(cls, objectKey):
@@ -105,7 +115,7 @@ class Doc:
                   meta=EXCLUDED.meta,
                   issued_at=EXCLUDED.issued_at
               """
-              
+
           result = db_query(query, (
               self.data['id'],
               self.data['issuer_id'],
