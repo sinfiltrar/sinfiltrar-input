@@ -8,6 +8,14 @@ Chalice project for AWS Lambda. Pushes SES input to PostrgreSQL.
 source venv/bin/activate
 ```
 
+## Set .env file
+
+Update as necesary
+
+```
+cp .env.example .env
+```
+
 ## Connect to the database
 
 You must have a valid AWS config with valid permissions. Then run:
